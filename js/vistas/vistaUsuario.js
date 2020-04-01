@@ -1,20 +1,30 @@
-/*
- * Vista usuario
- */
+
 var VistaUsuario = function(modelo, controlador, elementos) {
   this.modelo = modelo;
   this.controlador = controlador;
   this.elementos = elementos;
   var contexto = this;
 
-  //suscripcion a eventos del modelo
+
   this.modelo.preguntaAgregada.suscribir(function() {
     contexto.reconstruirLista();
+  });
+  this.modelo.preguntaEliminada.suscribir(function() { 
+    contexto.reconstruirLista();
+  });
+  this.modelo.preguntaEditada.suscribir(function() { 
+    contexto.reconstruirLista();
+  });
+  this.modelo.todoBorrado.suscribir(function() { 
+    contexto.reconstruirLista();
+  });
+  this.modelo.votoGuardado.suscribir(function() { 
+    contexto.reconstruirGrafico();
   });
 };
 
 VistaUsuario.prototype = {
-  //muestra la lista por pantalla y agrega el manejo del boton agregar
+  
   inicializar: function() {
     this.reconstruirLista();
     var elementos = this.elementos;
@@ -27,10 +37,10 @@ VistaUsuario.prototype = {
     this.reconstruirGrafico();
   },
 
-  //reconstruccion de los graficos de torta
+  
   reconstruirGrafico: function(){
     var contexto = this;
-    //obtiene las preguntas del local storage
+    
     var preguntas = this.modelo.preguntas;
     preguntas.forEach(function(clave){
       var listaParaGrafico = [[clave.textoPregunta, 'Cantidad']];
@@ -49,14 +59,18 @@ VistaUsuario.prototype = {
     var contexto = this;
     var preguntas = this.modelo.preguntas;
     preguntas.forEach(function(clave){
-      //completar
-      //agregar a listaPreguntas un elemento div con valor "clave.textoPregunta", texto "clave.textoPregunta", id "clave.id"
+      
+      listaPreguntas.append($('<div>', {
+        id: clave.id,
+        value: clave.textoPregunta,
+        text: clave.textoPregunta,
+      }));
       var respuestas = clave.cantidadPorRespuesta;
       contexto.mostrarRespuestas(listaPreguntas,respuestas, clave);
     })
   },
 
-  //muestra respuestas
+  
   mostrarRespuestas:function(listaPreguntas,respuestas, clave){
     respuestas.forEach (function(elemento) {
       listaPreguntas.append($('<input>', {
@@ -78,7 +92,7 @@ VistaUsuario.prototype = {
         var id = $(this).attr('id');
         var respuestaSeleccionada = $('input[name=' + id + ']:checked').val();
         $('input[name=' + id + ']').prop('checked',false);
-        contexto.controlador.agregarVoto(nombrePregunta,respuestaSeleccionada);
+        contexto.controlador.agregarVoto(id,respuestaSeleccionada);
       });
   },
 
@@ -113,4 +127,5 @@ VistaUsuario.prototype = {
       }
     }
   },
+
 };
